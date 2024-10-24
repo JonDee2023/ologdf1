@@ -1,0 +1,112 @@
+{
+	"name": "dataflow4",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText1",
+						"type": "DatasetReference"
+					},
+					"name": "DataSource1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSynapseAnalyticsTable7",
+						"type": "DatasetReference"
+					},
+					"name": "SplitDataSink"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSynapseAnalyticsTable8",
+						"type": "DatasetReference"
+					},
+					"name": "V6DataSplit"
+				}
+			],
+			"transformations": [
+				{
+					"name": "CylinderSplit"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          model as string,",
+				"          mpg as float,",
+				"          cyl as integer,",
+				"          disp as float,",
+				"          hp as float,",
+				"          drat as float,",
+				"          wt as float,",
+				"          qsec as float,",
+				"          vs as float,",
+				"          am as float,",
+				"          gear as float,",
+				"          carb as float",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> DataSource1",
+				"DataSource1 split(cyl==4,",
+				"     cyl>4,",
+				"     disjoint: false) ~> CylinderSplit@(V4Stream, V6)",
+				"CylinderSplit@V4Stream sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          model as string,",
+				"          mpg as double,",
+				"          cyl as integer,",
+				"          disp as double,",
+				"          hp as double,",
+				"          drat as double,",
+				"          wt as double,",
+				"          qsec as double,",
+				"          vs as integer,",
+				"          am as integer,",
+				"          gear as integer,",
+				"          carb as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> SplitDataSink",
+				"CylinderSplit@V6 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          model as string,",
+				"          mpg as double,",
+				"          cyl as integer,",
+				"          disp as double,",
+				"          hp as double,",
+				"          drat as double,",
+				"          wt as double,",
+				"          qsec as double,",
+				"          vs as integer,",
+				"          am as integer,",
+				"          gear as integer,",
+				"          carb as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> V6DataSplit"
+			]
+		}
+	}
+}

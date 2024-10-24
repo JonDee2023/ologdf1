@@ -1,0 +1,9 @@
+{
+	"name": "ologdf1",
+	"location": "northeurope",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "687f1d09-b1f7-4016-a1e6-261e63feb4b2",
+		"tenantId": "a61ccda5-a06f-4a4a-a02b-275c756a4b88"
+	}
+}

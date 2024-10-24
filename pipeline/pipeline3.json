@@ -1,0 +1,243 @@
+{
+	"name": "pipeline3",
+	"properties": {
+		"activities": [
+			{
+				"name": "csv2json",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dataflow3_copy1",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "json2dwh",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "csv2json",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": "mtcars.json",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "SqlDWSink",
+						"allowPolyBase": true,
+						"polyBaseSettings": {
+							"rejectValue": 0,
+							"rejectType": "value",
+							"useTypeDefault": true
+						}
+					},
+					"enableStaging": true,
+					"stagingSettings": {
+						"linkedServiceName": {
+							"referenceName": "AzureDataLakeStorage1",
+							"type": "LinkedServiceReference"
+						},
+						"path": "stage"
+					},
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "$['model']"
+								},
+								"sink": {
+									"name": "model",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['mpg']"
+								},
+								"sink": {
+									"name": "mpg",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"path": "$['cyl']"
+								},
+								"sink": {
+									"name": "cyl",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "$['disp']"
+								},
+								"sink": {
+									"name": "disp",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"path": "$['hp']"
+								},
+								"sink": {
+									"name": "hp",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"path": "$['drat']"
+								},
+								"sink": {
+									"name": "drat",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"path": "$['wt']"
+								},
+								"sink": {
+									"name": "wt",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"path": "$['qsec']"
+								},
+								"sink": {
+									"name": "qsec",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"path": "$['vs']"
+								},
+								"sink": {
+									"name": "vs",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "$['am']"
+								},
+								"sink": {
+									"name": "am",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "$['gear']"
+								},
+								"sink": {
+									"name": "gear",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "$['carb']"
+								},
+								"sink": {
+									"name": "carb",
+									"type": "Int32"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Json3",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "AzureSynapseAnalyticsTable6",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "DeleteJSON",
+				"type": "Delete",
+				"dependsOn": [
+					{
+						"activity": "json2dwh",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Json3",
+						"type": "DatasetReference"
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"wildcardFileName": "mtcars.json",
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2024-10-23T18:11:54Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

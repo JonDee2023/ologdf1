@@ -1,0 +1,110 @@
+{
+	"name": "dataflow3_abandoned",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText1",
+						"type": "DatasetReference"
+					},
+					"name": "mtcarsCSV"
+				},
+				{
+					"dataset": {
+						"referenceName": "Json2",
+						"type": "DatasetReference"
+					},
+					"name": "carsjson"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Json1",
+						"type": "DatasetReference"
+					},
+					"name": "mtcarsJSONStream"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSynapseAnalyticsTable5",
+						"type": "DatasetReference"
+					},
+					"name": "JSONCarsSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FlattenCarJSONobj"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          model as string,",
+				"          mpg as float,",
+				"          cyl as integer,",
+				"          disp as float,",
+				"          hp as float,",
+				"          drat as float,",
+				"          wt as float,",
+				"          qsec as float,",
+				"          vs as float,",
+				"          am as float,",
+				"          gear as float,",
+				"          carb as float",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> mtcarsCSV",
+				"source(output(",
+				"          cars as (Nissan as (model as string, doors as integer)[], Ford as (model as string, doors as integer)[])",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> carsjson",
+				"carsjson foldDown(unroll(),",
+				"     mapColumn(",
+				"          cars = cars.Nissan,",
+				"          model = cars.Nissan.model,",
+				"          doors = cars.Nissan.doors",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> FlattenCarJSONobj",
+				"mtcarsCSV sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['mtcars.json'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> mtcarsJSONStream",
+				"FlattenCarJSONobj sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          cars as string,",
+				"          model as string,",
+				"          doors as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          cars,",
+				"          model,",
+				"          doors",
+				"     )) ~> JSONCarsSink"
+			]
+		}
+	}
+}

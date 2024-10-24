@@ -1,0 +1,79 @@
+{
+	"name": "AzureSynapseAnalyticsTable1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSynapseAnalytics1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [
+			{
+				"name": "SalesOrderID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "OrderQty",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ProductID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "UnitPrice",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "UnitPriceDiscount",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "LineTotal",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "OrderDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "CustomerID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SubTotal",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "TaxAmt",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Freight",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "TotalDue",
+				"type": "float",
+				"precision": 15
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "SalesFacts"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

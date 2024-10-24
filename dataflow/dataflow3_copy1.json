@@ -1,0 +1,55 @@
+{
+	"name": "dataflow3_copy1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText1",
+						"type": "DatasetReference"
+					},
+					"name": "mtcarsCSV"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Json1",
+						"type": "DatasetReference"
+					},
+					"name": "mtcarsJSONStream"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          model as string,",
+				"          mpg as float,",
+				"          cyl as integer,",
+				"          disp as float,",
+				"          hp as float,",
+				"          drat as float,",
+				"          wt as float,",
+				"          qsec as float,",
+				"          vs as float,",
+				"          am as float,",
+				"          gear as float,",
+				"          carb as float",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> mtcarsCSV",
+				"mtcarsCSV sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['mtcars.json'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> mtcarsJSONStream"
+			]
+		}
+	}
+}
